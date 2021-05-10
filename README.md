@@ -1,0 +1,3 @@
+# Hotcray
+
+Hot AutoHotkey hotkeys.
