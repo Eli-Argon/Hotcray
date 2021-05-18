@@ -9,9 +9,9 @@ StringCaseSense On
 AutoTrim Off
 SetCapsLockState AlwaysOff
 SetNumLockState AlwaysOff
-;@Ahk2Exe-SetName Hotcray
+;@Ahk2Exe-SetName Hotcray-Short
 ;@Ahk2Exe-SetDescription AHK hotkeys
-;@Ahk2Exe-SetMainIcon Hotcray.ico
+;@Ahk2Exe-SetMainIcon Hotcray-Short.ico
 ;@Ahk2Exe-SetCompanyName Argon Systems
 ;@Ahk2Exe-SetCopyright Eli Argon
 ;@Ahk2Exe-SetVersion 1.1.1
@@ -65,7 +65,7 @@ fCharToggle(charA, charB) {
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~;
 
 #IfWinActive ahk_class CabinetWClass ahk_exe Explorer.EXE
-`::
+VKC0::
 If not WinExist("ahk_class mintty ahk_exe mintty.exe") {
     hwnd := WinActive("ahk_class CabinetWClass ahk_exe Explorer.EXE")
     If (hwnd)
@@ -79,13 +79,13 @@ If not WinExist("ahk_class mintty ahk_exe mintty.exe") {
 return
 
 #IfWinActive ahk_class mintty ahk_exe mintty.exe
-`::Send !{F4}
+VKC0::Send !{F4}
 
 #IfWinActive ahk_class Chrome_WidgetWin_1 ahk_exe Code.exe
-`::Send ^``
+VKC0::Send ^{VKC0}
 
 #IfWinActive ahk_class MozillaWindowClass ahk_exe firefox.exe
-`::Send {F12}
+VKC0::Send {F12}
 NumLock::
 Send {F6}
 Sleep 200
@@ -107,7 +107,7 @@ If (A_PriorKey == "LAlt")
 Send {Blind}{RCtrl Up}
 return
 
-Capslock::Backspace
+; Capslock::Backspace
 >!Capslock::
 <^>!Capslock::Send {Backspace}
 
@@ -134,16 +134,17 @@ return
 <#Tab::AltTab       ; LWin + Tab  =>  Alt + Tab
 <#`::Send #{Tab}
 
-NumpadClear::Space
-NumpadHome::Volume_Up
-NumpadEnd::Volume_Down
+; NumpadClear::Space
+; NumpadHome::Volume_Up
+; NumpadEnd::Volume_Down
 
-<^d::Send ^h        ; LCtrl + D   =>  Ctrl + H          Find and replace
-<^q::Send !c        ; LCtrl + Q   =>  Alt + C           VSCode: match case
+<^t::Send ^t
+<^s::Send ^h        ; LCtrl + D   =>  Ctrl + H          Find and replace
+<^q::Send !c        ; LCtrl + Q   =>  Alt + C           VSCode: match case                          ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
 <^w::Send !w        ; LCtrl + W   =>  Alt + W           VSCode: match whole word
-<^e::Send !r        ; LCtrl + E   =>  Alt + R           VSCode: use regex
+<^f::Send !p        ; LCtrl + E   =>  Alt + R           VSCode: use regex
 
-VKDC::Send !d       ; \           =>  Alt + D           Explorer, Firefox: focus address bar
+VKDC::Send !s       ; \           =>  Alt + D           Explorer, Firefox: focus address bar
 
 
 ;••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
@@ -151,55 +152,55 @@ VKDC::Send !d       ; \           =>  Alt + D           Explorer, Firefox: focus
 ;••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
 #If !GetKeyState("LAlt", "P") and isLatin
 
-e::Send f
-r::Send p
-t::Send g
-y::Send j
-u::Send l
-i::Send u
-o::Send y
-p::Send \
-[::Send «  ;  « {U+00AB} Left-pointing double-angle quotation mark
-]::Send »  ;  » {U+00BB} Right-pointing double-angle quotation mark
+; e::Send f
+; r::Send p
+; t::Send g
+; y::Send j
+; u::Send l
+; i::Send u
+; o::Send y
+; p::Send \
+; [::Send «  ;  « {U+00AB} Left-pointing double-angle quotation mark
+; ]::Send »  ;  » {U+00BB} Right-pointing double-angle quotation mark
 
-s::Send r
-d::Send s
-f::Send t
-g::Send d
-j::Send n
-k::Send e
-l::Send i
-`;::Send o
-'::Send {#}
+; s::Send r
+; d::Send s
+; f::Send t
+; g::Send d
+; j::Send n
+; k::Send e
+; l::Send i
+; `;::Send o
+; '::Send {#}
 
-n::Send k
-/::Send _
+; n::Send k
+; /::Send _
 ; - - - - - - - - - Latin SHIFT states - - - - - - - - - - - - - - - - ;
-+e::Send F
-+r::Send P
-+t::Send G
-+y::Send J
-+u::Send L
-+i::Send U
-+o::Send Y
-+p::Send /
-+[::Send •  ;  • {U+2022} (Bullet)
-+]::Send ◦  ;  ◦ {U+25E6} (White bullet)
+; +e::Send F
+; +r::Send P
+; +t::Send G
+; +y::Send J
+; +u::Send L
+; +i::Send U
+; +o::Send Y
+; +p::Send /
+; +[::Send •  ;  • {U+2022} (Bullet)
+; +]::Send ◦  ;  ◦ {U+25E6} (White bullet)
 
-+s::Send R
-+d::Send S
-+f::Send T
-+g::Send D
-+j::Send N
-+k::Send E
-+l::Send I
-+`;::Send O
-+'::Send *
+; +s::Send R
+; +d::Send S
+; +f::Send T
+; +g::Send D
+; +j::Send N
+; +k::Send E
+; +l::Send I
+; +`;::Send O
+; +'::Send *
 
-+n::Send K
-+,::Send ?
-+.::Send {!}
-+/::Send |
+; +n::Send K
+; +,::Send ?
+; +.::Send {!}
+; +/::Send |
 
 ;•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
 ;••••••••••••••••••••••••••••••••••••••••••••••••••••••  Cyrillic  •••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
@@ -208,75 +209,75 @@ n::Send k
 
 q::Send ц
 w::Send ь
-e::Send я
-r::fCharToggle("э", "є")
-t::Send ф
-y::Send з
-u::Send в
-i::Send к
-o::Send д
-p::Send ч
-[::Send ш
-]::Send щ
+f::Send я
+p::fCharToggle("э", "є")                         ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
+g::Send ф
+j::Send з
+l::Send в
+u::Send к
+y::Send д
+\::Send ч
+«::Send ш
+»::Send щ
 
 a::Send у
-s::fCharToggle("и", "й")
-d::Send е
-f::Send о
-g::Send а
-h::Send л
-j::Send н
-k::Send т
-l::Send с
-`;::Send р
-'::fCharToggle("ї", "ґ")
+r::fCharToggle("и", "й")
+s::Send е
+t::Send о
+d::Send а
+h::Send л                                          ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
+n::Send н
+e::Send т
+i::Send с
+o::Send р
+#::fCharToggle("ї", "ґ")
 
 z::Send .
 x::Send `,
 c::Send х
 v::fCharToggle("ы", "і")
 b::Send ю
-n::Send б
+k::Send б
 m::Send м
 ,::Send п
 .::Send г
-/::Send ж
+_::Send ж
 ; - - - - - - - - - Cyrillic SHIFT states - - - - - - - - - - - - - - - - ;
 +q::Send Ц
 +w::Send ъ
-+e::Send Я
-+r::fCharToggle("Э", "Є")
-+t::Send Ф
-+y::Send З
-+u::Send В
-+i::Send К
-+o::Send Д
-+p::Send Ч
-+[::Send Ш
-+]::Send Щ
++f::Send Я
++p::fCharToggle("Э", "Є")
++g::Send Ф
++j::Send З
++l::Send В
++u::Send К
++y::Send Д
++\::Send Ч
++«::Send Ш
++»::Send Щ
 
 +a::Send У
-+s::fCharToggle("И", "Й")
-+d::Send Е
-+f::Send О
-+g::Send А
-+h::Send Л
-+j::Send Н
-+k::Send Т
-+l::Send С
-+`;::Send Р
-+'::fCharToggle("Ї", "Ґ")
++r::fCharToggle("И", "Й")
++s::Send Е
++t::Send О
++d::Send А
++h::Send Л                                                            ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
++n::Send Н
++e::Send Т
++i::Send С
++o::Send Р
++#::fCharToggle("Ї", "Ґ")
 
 +z::Send {!}
 +x::Send ?
 +c::Send Х
 +v::fCharToggle("Ы", "І")
 +b::Send Ю
-+n::Send Б
++k::Send Б
 +m::Send М
 +,::Send П
 +.::Send Г
-+/::Send Ж
++_::Send Ж
 
 ;•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
 ;•••••••••••••••••••••••••••••••••••  Characters not dependent on Latin-Cyrillic switch  •••••••••••••••••••••••••••••••••••••••••;
@@ -284,106 +285,106 @@ m::Send м
 #If !GetKeyState("LAlt", "P")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  SHIFT  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-+`::Send №  ;  № {U+2116} Numero sign
+; +`::Send №  ;  № {U+2116} Numero sign
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  AltGR  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  >!`::
-<^>!`::Send ∞  ;  ∞ {U+    } Infinity sign
-  >!1::
-<^>!1::Send ¹  ;  ¹ {U+00B9} Superscript one
-  >!2::
-<^>!2::Send ²  ;  ² {U+00B2} Superscript two
-  >!3::
-<^>!3::Send ³  ;  ³ {U+00B3} Superscript three
-  >!4::
-<^>!4::Send √  ;  √ {U+221A} Square root
-  >!5::
-<^>!5::Send ·  ;  · {U+00B7} Middle dot
-  >!6::
-<^>!6::Send ×  ;  × {U+00D7} Multiplication sign
-  >!7::
-<^>!7::Send ÷  ;  ÷ {U+00F7} Division sign
-  >!8::
-<^>!8::Send {+}
-  >!9::
-<^>!9::Send −  ;  − {U+2212} Minus sign
-  >!0::
-<^>!0::Send ±  ;  ± {U+00B1} Plus-minus sign
-  >!-::
-<^>!-::Send ≈  ;  ≈ {U+2248} Almost equal to
-  >!=::
-<^>!=::Send ≠  ;  ≠ {U+2260} Not equal to
+;   >!`::
+; <^>!`::Send ∞  ;  ∞ {U+    } Infinity sign
+;   >!1::
+; <^>!1::Send ¹  ;  ¹ {U+00B9} Superscript one
+;   >!2::
+; <^>!2::Send ²  ;  ² {U+00B2} Superscript two
+;   >!3::
+; <^>!3::Send ³  ;  ³ {U+00B3} Superscript three
+;   >!4::
+; <^>!4::Send √  ;  √ {U+221A} Square root
+;   >!5::
+; <^>!5::Send ·  ;  · {U+00B7} Middle dot
+;   >!6::
+; <^>!6::Send ×  ;  × {U+00D7} Multiplication sign
+;   >!7::
+; <^>!7::Send ÷  ;  ÷ {U+00F7} Division sign
+;   >!8::
+; <^>!8::Send {+}
+;   >!9::
+; <^>!9::Send −  ;  − {U+2212} Minus sign
+;   >!0::
+; <^>!0::Send ±  ;  ± {U+00B1} Plus-minus sign
+;   >!-::
+; <^>!-::Send ≈  ;  ≈ {U+2248} Almost equal to
+;   >!=::
+; <^>!=::Send ≠  ;  ≠ {U+2260} Not equal to
 
-  >!q::
-<^>!q::Send 9
-  >!w::
-<^>!w::Send 8
-  >!e::
-<^>!e::Send 7
-  >!r::
-<^>!r::Send 6
-  >!t::
-<^>!t::Send 5
-  >!y::
-<^>!y::Send þ  ;  þ {U+00FE} (Small thorn)
-  >!u::
-<^>!u::Send ð  ;  ð {U+00F0} (Small eth)
-  >!i::
-<^>!i::Send (
-  >!o::
-<^>!o::Send )
-  >!p::
-<^>!p::Send `%  ;  % {U+0025} (Percent sign)
-  >![::
-<^>![::Send ≥
-  >!]::
-<^>!]::Send ≤
+;   >!q::
+; <^>!q::Send 9
+;   >!w::
+; <^>!w::Send 8
+;   >!e::
+; <^>!e::Send 7
+;   >!r::
+; <^>!r::Send 6
+;   >!t::
+; <^>!t::Send 5
+;   >!y::
+; <^>!y::Send þ  ;  þ {U+00FE} (Small thorn)
+;   >!u::
+; <^>!u::Send ð  ;  ð {U+00F0} (Small eth)
+;   >!i::
+; <^>!i::Send (
+;   >!o::
+; <^>!o::Send )
+;   >!p::
+; <^>!p::Send `%  ;  % {U+0025} (Percent sign)
+;   >![::
+; <^>![::Send ≥
+;   >!]::
+; <^>!]::Send ≤
 
 
-  >!a::
-<^>!a::Send 0
-  >!s::
-<^>!s::Send 1
-  >!d::
-<^>!d::Send 2
-  >!f::
-<^>!f::Send 3
-  >!g::
-<^>!g::Send 4
-  >!h::
-<^>!h::Send ‑  ;  ‑ {U+2011} Non-breaking hyphen
-  >!j::
-<^>!j::Send {+}
-  >!k::
-<^>!k::Send `=
-  >!l::
-<^>!l::Send "
-  >!;::
-<^>!;::Send '
-  >!'::
-<^>!'::Send ``  ;  Backtick (grave accent)
+;   >!a::
+; <^>!a::Send 0
+;   >!s::
+; <^>!s::Send 1
+;   >!d::
+; <^>!d::Send 2
+;   >!f::
+; <^>!f::Send 3
+;   >!g::
+; <^>!g::Send 4
+;   >!h::
+; <^>!h::Send ‑  ;  ‑ {U+2011} Non-breaking hyphen
+;   >!j::
+; <^>!j::Send {+}
+;   >!k::
+; <^>!k::Send `=
+;   >!l::
+; <^>!l::Send "
+;   >!;::
+; <^>!;::Send '
+;   >!'::
+; <^>!'::Send ``  ;  Backtick (grave accent)
                                                         
-  >!z::
-<^>!z::Send æ   ;  æ {U+00E6} Small ash
-  >!x::
-<^>!x::Send œ   ;  œ {U+0153}
-  >!c::
-<^>!c::Send ©
-  >!v::
-<^>!v::Send ™
-  >!b::
-<^>!b::Send –   ;  – {U+2013} En dash
-  >!n::
-<^>!n::Send —   ;  — {U+2014} Em dash
-  >!m::
-<^>!m::Send -   ;  Hyphen-minus
-  >!,::
-<^>!,::Send `;
-  >!.::
-<^>!.::Send :
-  >!/::
-<^>!/::Send &
+;   >!z::
+; <^>!z::Send æ   ;  æ {U+00E6} Small ash
+;   >!x::
+; <^>!x::Send œ   ;  œ {U+0153}
+;   >!c::
+; <^>!c::Send ©
+;   >!v::
+; <^>!v::Send ™
+;   >!b::
+; <^>!b::Send –   ;  – {U+2013} En dash
+;   >!n::
+; <^>!n::Send —   ;  — {U+2014} Em dash
+;   >!m::
+; <^>!m::Send -   ;  Hyphen-minus
+;   >!,::
+; <^>!,::Send `;
+;   >!.::
+; <^>!.::Send :
+;   >!/::
+; <^>!/::Send &
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Shift + AltGR  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -400,185 +401,185 @@ m::Send м
   +>!5::
 +<^>!5::Send ᕦ(ಠ_ಠ)ᕤ
 
-  +>!q::
-+<^>!q::Send ̊
-  +>!w::
-+<^>!w::Send ̨
-  +>!e::
-+<^>!e::Send ̌
-  +>!r::
-+<^>!r::Send ̂
-  +>!t::
-+<^>!t::Send ̋
-  +>!y::
-+<^>!y::Send Þ
-  +>!u::
-+<^>!u::Send Ð
-  +>!i::
-+<^>!i::Send [
-  +>!o::
-+<^>!o::Send ]
-  +>!p::
-+<^>!p::Send °  ; Degree sign
-;   +>![::
-; +<^>![::Send
-;   +>!]::
-; +<^>!]::Send
+;   +>!q::
+; +<^>!q::Send ̊
+;   +>!w::
+; +<^>!w::Send ̨
+;   +>!e::
+; +<^>!e::Send ̌
+;   +>!r::
+; +<^>!r::Send ̂
+;   +>!t::
+; +<^>!t::Send ̋
+;   +>!y::
+; +<^>!y::Send Þ
+;   +>!u::
+; +<^>!u::Send Ð
+;   +>!i::
+; +<^>!i::Send [
+;   +>!o::
+; +<^>!o::Send ]
+;   +>!p::
+; +<^>!p::Send °  ; Degree sign
+; ;   +>![::
+; ; +<^>![::Send
+; ;   +>!]::
+; ; +<^>!]::Send
 
-  +>!a::
-+<^>!a::Send ̀
-  +>!s::
-+<^>!s::Send ́
-  +>!d::
-+<^>!d::Send ̃
-  +>!f::
-+<^>!f::Send ̈
-  +>!g::
-+<^>!g::Send ß
-  +>!h::
-+<^>!h::Send ̧
-  +>!j::
-+<^>!j::Send <
-  +>!k::
-+<^>!k::Send >
-  +>!l::
-+<^>!l::Send {{}
-  +>!;::
-+<^>!;::Send {}}
-  +>!'::
-+<^>!'::Send ̄  ; ̄   {U+0304} (Combining macron)
+;   +>!a::
+; +<^>!a::Send ̀
+;   +>!s::
+; +<^>!s::Send ́
+;   +>!d::
+; +<^>!d::Send ̃
+;   +>!f::
+; +<^>!f::Send ̈
+;   +>!g::
+; +<^>!g::Send ß
+;   +>!h::
+; +<^>!h::Send ̧
+;   +>!j::
+; +<^>!j::Send <
+;   +>!k::
+; +<^>!k::Send >
+;   +>!l::
+; +<^>!l::Send {{}
+;   +>!;::
+; +<^>!;::Send {}}
+;   +>!'::
+; +<^>!'::Send ̄  ; ̄   {U+0304} (Combining macron)
                                                                                                 
-  +>!z::
-+<^>!z::Send Æ
-  +>!x::
-+<^>!x::Send Œ
-  +>!c::
-+<^>!c::Send ₴  ;  Hryvnia
-  +>!v::
-+<^>!v::Send €  ;  Euro
-  +>!b::
-+<^>!b::Send £  ;  Pound
-  +>!n::
-+<^>!n::Send ₽  ;  Ruble
-  +>!m::
-+<^>!m::Send {^}
-  +>!,::
-+<^>!,::Send $
-  +>!.::
-+<^>!.::Send @
-  +>!/::
-+<^>!/::Send ~
+;   +>!z::
+; +<^>!z::Send Æ
+;   +>!x::
+; +<^>!x::Send Œ
+;   +>!c::
+; +<^>!c::Send ₴  ;  Hryvnia
+;   +>!v::
+; +<^>!v::Send €  ;  Euro
+;   +>!b::
+; +<^>!b::Send £  ;  Pound
+;   +>!n::
+; +<^>!n::Send ₽  ;  Ruble
+;   +>!m::
+; +<^>!m::Send {^}
+;   +>!,::
+; +<^>!,::Send $
+;   +>!.::
+; +<^>!.::Send @
+;   +>!/::
+; +<^>!/::Send ~
 
 
 ;•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
 ;•••••••••••••••••••••••••••••••••••••••••••••  LAlt (navigation, cursor, misc)  •••••••••••••••••••••••••••••••••••••••••••••••••••;
 ;•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••;
 #If GetKeyState("LAlt", "P")
-
+                                                                   ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
 *m::Send {Delete}
-*q::Send ^+t            ; LAlt + Q          =>  Ctrl + Shift + T      Firefox: undo close tab
-*y::Send ^p             ; LAlt + Y          =>  Ctrl + P              VSCode: go to file
-*u::Send ^g             ; LAlt + U          =>  Ctrl + G              VSCode: go to line
-*o::Send +{F10}         ; LAlt + O          =>  Shift + F10           Context menu
-*p::Send !d             ; LAlt + P          =>  Alt + D               Explorer, Firefox: focus address bar
+*q::Send ^+g            ; LAlt + Q          =>  Ctrl + Shift + T      Firefox: undo close tab
+*j::Send ^\             ; LAlt + Y          =>  Ctrl + P              VSCode: go to file
+*l::Send ^d             ; LAlt + U          =>  Ctrl + G              VSCode: go to line
+*y::Send +{F10}         ; LAlt + O          =>  Shift + F10           Context menu
+*\::Send !s             ; LAlt + P          =>  Alt + D               Explorer, Firefox: focus address bar
 
-*g::Send ^k^[           ; LAlt + G          =>  Ctrl + K + Ctrl + [   VSCode: fold region recursively
-*h::Send ^k^]           ; LAlt + H          =>  Ctrl + K + Ctrl + ]   VSCode: unfold region recursively
+*d::Send ^e^«           ; LAlt + G          =>  Ctrl + K + Ctrl + [   VSCode: fold region recursively
+*h::Send ^e^»           ; LAlt + H          =>  Ctrl + K + Ctrl + ]   VSCode: unfold region recursively
 
-*+z::Send ^y            ; LAlt + Shift + Z  =>  Ctrl + Y              Redo action
-*b::Send ^/             ; LAlt + B          =>  Ctrl + /              VSCode: toggle comment
+*+z::Send ^j            ; LAlt + Shift + Z  =>  Ctrl + Y              Redo action
+*b::Send ^_             ; LAlt + B          =>  Ctrl + /              VSCode: toggle comment
 
 ; — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — ;
-*j::
-If GetKeyState(";", "P")
+*n::
+If GetKeyState("o", "P")
   Send +{Left}                         ; LAlt + ; + J              =>  Shift + Left
 else Send {Left}
 return
-*+j::Send +{Left}                      ; LAlt + Shift + J          =>  Shift + Left
-*<^j::
-If GetKeyState(";", "P")
+*+n::Send +{Left}                      ; LAlt + Shift + J          =>  Shift + Left
+*<^n::
+If GetKeyState("o", "P")
     Send ^+{Left}                      ; LAlt + LCtrl + ; + J      =>  Ctrl + Shift + Left
 else Send ^{Left}                      ; LAlt + LCtrl + J          =>  Ctrl + Left
 return
-*<^+j::Send ^+{Left}                   ; LAlt + LCtrl + Shift + J  =>  Ctrl + Shift + Left
+*<^+n::Send ^+{Left}                   ; LAlt + LCtrl + Shift + J  =>  Ctrl + Shift + Left
 
-*>!j::
-*<^>!j::
-If GetKeyState(";", "P")
+*>!n::
+*<^>!n::
+If GetKeyState("o", "P")
   Send !+{Left}                        ; LAlt + AltGr + ; + J      =>  Alt + Shift + Left
 else Send !{Left}                      ; LAlt + AltGr + J          =>  Alt + Left
 return
-*>!+j::
-*<^>!+j::Send !+{Left}                 ; LAlt + AltGr + Shift + J  =>  Alt + Shift + Left
-
-; – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – ;
-*l::
-If GetKeyState(";", "P")
-  Send +{Right}
-else Send {Right}
-return
-*+l::Send +{Right}
-*<^l::
-If GetKeyState(";", "P")
-    Send ^+{Right}
-else Send ^{Right}
-return
-*<^+l::Send ^+{Right}
-
-*>!l::
-*<^>!l::
-If GetKeyState(";", "P")
-  Send !+{Right}
-else Send !{Right}
-return
-*>!+l::
-*<^>!+l::Send !+{Right}
+*>!+n::
+*<^>!+n::Send !+{Left}                 ; LAlt + AltGr + Shift + J  =>  Alt + Shift + Left
 
 ; – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – ;
 *i::
-If GetKeyState(";", "P")
-  Send +{Up}
-else Send {Up}
+If GetKeyState("o", "P")
+  Send +{Right}
+else Send {Right}
 return
-*+i::Send +{Up}
+*+i::Send +{Right}
 *<^i::
-If GetKeyState(";", "P")
-    Send ^+{Up}
-else Send ^{Up}
+If GetKeyState("o", "P")
+    Send ^+{Right}
+else Send ^{Right}
 return
-*<^+i::Send ^+{Up}
+*<^+i::Send ^+{Right}                                               ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
 
 *>!i::
 *<^>!i::
-If GetKeyState(";", "P")
+If GetKeyState("o", "P")
+  Send !+{Right}
+else Send !{Right}
+return
+*>!+i::
+*<^>!+i::Send !+{Right}
+
+; – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – ;
+*u::
+If GetKeyState("o", "P")
+  Send +{Up}
+else Send {Up}
+return
+*+u::Send +{Up}
+*<^u::
+If GetKeyState("o", "P")
+    Send ^+{Up}
+else Send ^{Up}
+return
+*<^+u::Send ^+{Up}
+
+*>!u::
+*<^>!u::
+If GetKeyState("o", "P")
   Send !+{Up}
 else Send !{Up}
 return
-*>!+i::
-*<^>!+i::Send !+{Up}
+*>!+u::
+*<^>!+u::Send !+{Up}
 
 ; – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – ;
-*k::
-If GetKeyState(";", "P")
+*e::
+If GetKeyState("o", "P")
   Send +{Down}
 else Send {Down}
 return
-*+k::Send +{Down}
-*<^k::
-If GetKeyState(";", "P")
+*+e::Send +{Down}
+*<^e::
+If GetKeyState("o", "P")                                               ;!!!!!!!!!!   FOR COLEMAK LAYOUT   !!!!!!!!;
     Send ^+{Down}
 else Send ^{Down}
 return
-*<^+k::Send ^+{Down}
+*<^+e::Send ^+{Down}
 
-*>!k:: 
-*<^>!k::
-If GetKeyState(";", "P")
+*>!e:: 
+*<^>!e::
+If GetKeyState("o", "P")
   Send !+{Down}
 else Send !{Down}
 return
-*>!+k::
-*<^>!+k::Send !+{Down}
+*>!+e::
+*<^>!+e::Send !+{Down}
 
 ; – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – – ;
 *,::Send ^!{Down}       ; LAlt + ,          => Ctrl + Alt + Down
@@ -588,31 +589,31 @@ return
 
 ;<==<==<==<==<==<==<==<==<==<==<==<==<==<==<==<==   Left side navigation: Home, End, PgUp, PgDn   <==<==<==<==<==<==<==<==<==<==<==<==<==<==
 
-*s::
-If GetKeyState(";", "P")
+*r::
+If GetKeyState("o", "P")
   Send +{Home}
 else Send {Home}             ; LAlt + S          =>  Home
 return
-*+s::Send +{Home}            ; LAlt + Shift + S  =>  Shift + Home
-*>!s::
-*<^>!s::Send ^{PgUp}         ; LAlt + AltGr + S  =>  Ctrl + PageUp             Previous tab
+*+r::Send +{Home}            ; LAlt + Shift + S  =>  Shift + Home
+*>!r::
+*<^>!r::Send ^{PgUp}         ; LAlt + AltGr + S  =>  Ctrl + PageUp             Previous tab
 
-*f::
-If GetKeyState(";", "P")
+*t::
+If GetKeyState("o", "P")
   Send +{End}
 else Send {End}              ; LAlt + F          =>  End
 return
-*+f::Send +{End}             ; LAlt + Shift + F  =>  Shift + End
+*+t::Send +{End}             ; LAlt + Shift + F  =>  Shift + End
+*>!t::
+*<^>!t::Send ^{PgDn}         ; LAlt + AltGr + F  =>  Ctrl + PageDown           Next tab
+
+
+*f::Send {PgUp}              ; LAlt + E          =>  PageUp
 *>!f::
-*<^>!f::Send ^{PgDn}         ; LAlt + AltGr + F  =>  Ctrl + PageDown           Next tab
+*<^>!f::Send ^+{PgUp}        ; LAlt + AltGr + E  =>  Ctrl + Shift + PageUp     Firefox, VSCode: move tab left
 
-
-*e::Send {PgUp}              ; LAlt + E          =>  PageUp
-*>!e::
-*<^>!e::Send ^+{PgUp}        ; LAlt + AltGr + E  =>  Ctrl + Shift + PageUp     Firefox, VSCode: move tab left
-
-*d::Send {PgDn}              ; LAlt + D          =>  PageDown
-*>!d::
-*<^>!d::Send ^+{PgDn}        ; LAlt + AltGr + D  =>  Ctrl + Shift + PageDown   Firefox, VSCode: move tab right
+*s::Send {PgDn}              ; LAlt + D          =>  PageDown
+*>!s::
+*<^>!s::Send ^+{PgDn}        ; LAlt + AltGr + D  =>  Ctrl + Shift + PageDown   Firefox, VSCode: move tab right
 
 #If
