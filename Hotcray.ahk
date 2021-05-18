@@ -14,7 +14,7 @@ SetNumLockState AlwaysOff
 ;@Ahk2Exe-SetMainIcon Hotcray.ico
 ;@Ahk2Exe-SetCompanyName Argon Systems
 ;@Ahk2Exe-SetCopyright Eli Argon
-;@Ahk2Exe-SetVersion 1.0
+;@Ahk2Exe-SetVersion 1.1.0
 
 ;@Ahk2Exe-AddResource Latin.ico, 301
 ;@Ahk2Exe-AddResource Cyrillic.ico, 302
@@ -476,17 +476,17 @@ m::Send м
 #If GetKeyState("LAlt", "P")
 
 *m::Send {Delete}
-*q::Send ^+t            ; LAlt + Q          =>  Ctrl + Shift + T   Firefox: undo close tab
-*y::Send ^p             ; LAlt + Y          =>  Ctrl + P           VSCode: go to file
-*u::Send ^g             ; LAlt + U          =>  Ctrl + G           VSCode: go to line
-*o::Send +{F10}         ; LAlt + O          =>  Shift + F10        Context menu
-*p::Send !d             ; LAlt + P          =>  Alt + D            Explorer, Firefox: focus address bar
+*q::Send ^+t            ; LAlt + Q          =>  Ctrl + Shift + T      Firefox: undo close tab
+*y::Send ^p             ; LAlt + Y          =>  Ctrl + P              VSCode: go to file
+*u::Send ^g             ; LAlt + U          =>  Ctrl + G              VSCode: go to line
+*o::Send +{F10}         ; LAlt + O          =>  Shift + F10           Context menu
+*p::Send !d             ; LAlt + P          =>  Alt + D               Explorer, Firefox: focus address bar
 
-*g::Send ^+[            ; LAlt + G          =>  Ctrl + Shift + [   VSCode: collapse region
-*h::Send ^+]            ; LAlt + H          =>  Ctrl + Shift + ]   VSCode: uncollapse region
+*g::Send ^k^[           ; LAlt + G          =>  Ctrl + K + Ctrl + [   VSCode: fold region recursively
+*h::Send ^+]            ; LAlt + H          =>  Ctrl + K + Ctrl + ]   VSCode: unfold region recursively
 
-*+z::Send ^y            ; LAlt + Shift + Z  =>  Ctrl + Y           Redo action
-*b::Send ^/             ; LAlt + B          =>  Ctrl + /           VSCode: toggle comment
+*+z::Send ^y            ; LAlt + Shift + Z  =>  Ctrl + Y              Redo action
+*b::Send ^/             ; LAlt + B          =>  Ctrl + /              VSCode: toggle comment
 
 ; — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — — ;
 *j::
