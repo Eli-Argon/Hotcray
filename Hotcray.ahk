@@ -14,7 +14,7 @@ SetNumLockState AlwaysOff
 ;@Ahk2Exe-SetMainIcon Hotcray.ico
 ;@Ahk2Exe-SetCompanyName Argon Systems
 ;@Ahk2Exe-SetCopyright Eli Argon
-;@Ahk2Exe-SetVersion 1.1.1
+;@Ahk2Exe-SetVersion 1.1.2
 
 ;@Ahk2Exe-AddResource Latin.ico, 301
 ;@Ahk2Exe-AddResource Cyrillic.ico, 302
