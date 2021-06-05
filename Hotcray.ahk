@@ -14,7 +14,7 @@ SetNumLockState AlwaysOff
 ;@Ahk2Exe-SetMainIcon Hotcray.ico
 ;@Ahk2Exe-SetCompanyName Argon Systems
 ;@Ahk2Exe-SetCopyright Eli Argon
-;@Ahk2Exe-SetVersion 1.1.2
+;@Ahk2Exe-SetVersion 1.2.0
 
 ;@Ahk2Exe-AddResource Latin.ico, 301
 ;@Ahk2Exe-AddResource Cyrillic.ico, 302
@@ -215,7 +215,7 @@ y::Send з
 u::Send в
 i::Send к
 o::Send д
-p::Send ч
+p::fCharToggle("ч", "\")
 [::Send ш
 ]::Send щ
 
@@ -251,7 +251,7 @@ m::Send м
 +u::Send В
 +i::Send К
 +o::Send Д
-+p::Send Ч
++p::fCharToggle("Ч", "/")
 +[::Send Ш
 +]::Send Щ
 
