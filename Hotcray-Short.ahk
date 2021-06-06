@@ -14,7 +14,7 @@ SetNumLockState AlwaysOff
 ;@Ahk2Exe-SetMainIcon Hotcray-Short.ico
 ;@Ahk2Exe-SetCompanyName Argon Systems
 ;@Ahk2Exe-SetCopyright Eli Argon
-;@Ahk2Exe-SetVersion 1.3.0
+;@Ahk2Exe-SetVersion 1.4.0
 
 ;@Ahk2Exe-AddResource Latin.ico, 301
 ;@Ahk2Exe-AddResource Cyrillic.ico, 302
@@ -46,10 +46,12 @@ fAbort(isCondition, sFuncName, sNote, dVars:="") {
 
 fCharToggle(charA, charB) {
     Local
-    Static bCharToggle
+    Static bCharToggle := true
 
     If (A_PriorHotkey == A_ThisHotkey) {
-        bCharToggle := !bCharToggle
+        If A_PriorKey in Space,LShift,RShift,LAlt,RAlt,LControl,RControl,LWin,RWin
+            bCharToggle := true
+        else bCharToggle := !bCharToggle
         Send {Backspace}
         If bCharToggle
             Send %charA%
