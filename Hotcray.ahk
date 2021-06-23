@@ -14,7 +14,7 @@ SetNumLockState AlwaysOff
 ;@Ahk2Exe-SetMainIcon Hotcray.ico
 ;@Ahk2Exe-SetCompanyName Argon Systems
 ;@Ahk2Exe-SetCopyright Eli Argon
-;@Ahk2Exe-SetVersion 1.4.0
+;@Ahk2Exe-SetVersion 1.5.0
 
 ;@Ahk2Exe-AddResource Latin.ico, 301
 ;@Ahk2Exe-AddResource Cyrillic.ico, 302
@@ -160,7 +160,7 @@ y::Send j
 u::Send l
 i::Send u
 o::Send y
-p::Send \
+p::Send /
 [::Send «  ;  « {U+00AB} Left-pointing double-angle quotation mark
 ]::Send »  ;  » {U+00BB} Right-pointing double-angle quotation mark
 
@@ -184,7 +184,7 @@ n::Send k
 +u::Send L
 +i::Send U
 +o::Send Y
-+p::Send /
++p::Send \
 +[::Send •  ;  • {U+2022} (Bullet)
 +]::Send ◦  ;  ◦ {U+25E6} (White bullet)
 
@@ -217,7 +217,7 @@ y::Send з
 u::Send в
 i::Send к
 o::Send д
-p::fCharToggle("ч", "\")
+p::fCharToggle("ч", "/")
 [::fCharToggle("ш", "«")
 ]::fCharToggle("щ", "»")
 
@@ -253,7 +253,7 @@ m::Send м
 +u::Send В
 +i::Send К
 +o::Send Д
-+p::fCharToggle("Ч", "/")
++p::fCharToggle("Ч", "\")
 +[::Send Ш
 +]::Send Щ
 
