@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+; Removes the old Hotcray scancode map (CapsLock->Backspace, Numpad5->Space,
+; Numpad7->VolumeUp, Numpad1->VolumeDown). kanata does all of this now, and
+; it must see the real keys. Double-click, confirm, then sign out/restart.
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+"Scancode Map"=-

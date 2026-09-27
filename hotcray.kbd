@@ -1,0 +1,725 @@
+;; ╔══════════════════════════════════════════════════════════════════════════╗
+;; ║  HOTCRAY — kanata configuration                                          ║
+;; ║                                                                          ║
+;; ║  This file IS the keyboard layout. Everything that happens when you      ║
+;; ║  press a key is decided here, by kanata, before any program sees it.     ║
+;; ║                                                                          ║
+;; ║  New to kanata? Read docs/KANATA-PRIMER.md first (10 minutes).           ║
+;; ║  Quick reference of all keys: docs/LAYOUT.md                             ║
+;; ╚══════════════════════════════════════════════════════════════════════════╝
+;;
+;; HOW TO READ THIS FILE
+;; ---------------------
+;; * `;;` starts a comment. `#| ... |#` is a multi-line comment.
+;; * Everything is a list in round brackets: (what arguments...).
+;; * Key names are the US-QWERTY names of the PHYSICAL key, no matter what
+;;   letter it produces: `e` means "the key where E is on a US keyboard".
+;;   Punctuation keys have long names too: grv = ` , min = - , eql = = ,
+;;   lbrc = [ , rbrc = ] , bksl = \ , scln = ; , apos = ' , comm = , ,
+;;   . and / are themselves.
+;; * `@name` uses an alias (a named action) defined with (defalias name ...).
+;; * `(t! name args...)` uses a template: a small reusable snippet defined
+;;   with (deftemplate name (params...) ...), in which $param is replaced by
+;;   the argument. Templates keep 100 almost identical lines readable.
+;; * `_` in a layer means "transparent": do whatever the layer below does.
+;;
+;; EDITING SAFELY
+;; --------------
+;; 1. Edit, save.
+;; 2. Check it:   Windows:  bin\kanata.exe --check -c hotcray.kbd
+;;                Linux:    bin/kanata --check -c hotcray.kbd
+;;    (the tray menu has "Check config" / "Reload config" too).
+;; 3. Reload: tray menu → Reload, or restart Hotcray. If the new file has an
+;;    error, a live reload keeps using the old one, so you never end up
+;;    without a keyboard.
+;; 4. Emergency exit, works even if the config is broken: hold
+;;    Left Ctrl + Space + Esc (kanata's built-in kill switch; checked on the
+;;    raw keys, before any remapping).
+;;
+;; LAYERS (think "transparent sheets on top of the keyboard")
+;; ------------------------------------------------------------
+;;   lat   Latin letters (Colemak-like, as in the old Hotcray)    ← start here
+;;   cyr   Cyrillic (Ukrainian first)                 Win+Space switches lat⇄cyr
+;;   sym   symbols, digits, accents                   while Right Alt is held
+;;   nav   arrows, Home/End, editing, Ctrl-shortcuts  while Left Alt is held
+;;   nalt  "Alt" versions of nav keys                 Left Alt + Right Alt held
+;;   win   Windows/Super-key shortcuts                while the Win key is held
+;;   off   everything passes through untouched        ScrollLock (or Right Shift+Esc)
+;;
+;;   `lat`, `cyr` and `off` are BASE layers (switched, they stay).
+;;   `sym`, `nav`, `nalt`, `win` are HELD layers (active only while held).
+;;
+;; HOW KANATA TALKS TO THE REST OF HOTCRAY
+;; ----------------------------------------
+;; kanata cannot see which program is in front, cannot draw a tray icon and
+;; cannot start programs without special builds. A small companion program
+;; does that (Windows: Hotcray.ahk, Linux: linux/hotcray-companion.py).
+;;   * Windows: kanata "presses" the unused keys F13…F19; the companion
+;;     listens for exactly those keys (no keyboard hook, so it can never slow
+;;     down or break your typing). See the SIGNALS section.
+;;   * Linux: kanata sends messages over a local TCP socket (push-msg); the
+;;     companion answers by asking kanata to press virtual keys.
+;;
+;; PLATFORM DIFFERENCES ARE HANDLED INSIDE THIS FILE
+;; --------------------------------------------------
+;; (platform (win winiov2 wintercept) X)  → X is only used on Windows.
+;; (platform (linux) X)                   → X is only used on Linux.
+;; (environment (HOTCRAY_LINUX_XKB yes) X) → X is only used when the variable
+;;     is set to "yes". The Linux launcher sets it after configuring the OS
+;;     layouts English+Ukrainian (see "CYRILLIC OUTPUT" below). When the
+;;     variable is empty/unset, the "" block is used instead.
+;; Only ONE item may follow the condition, so each block wraps one defalias
+;; or one deftemplate.
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  GLOBAL SETTINGS
+;; ════════════════════════════════════════════════════════════════════════════
+(defcfg
+  ;; Also process keys that are not listed in defsrc (media keys etc.), so
+  ;; the modifier checks below always see the true keyboard state.
+  process-unmapped-keys yes
+
+  ;; Windows, AltGr keyboard layouts: some layouts send a fake Left Ctrl with
+  ;; Right Alt. Hotcray expects the OS layout "English (US)" (the companion
+  ;; enforces it), where this does not happen; this is a safety net that
+  ;; guarantees Ctrl can never get stuck if a different layout is active.
+  windows-altgr add-lctl-release
+
+  ;; Don't write every layer change to the log (small performance win).
+  log-layer-changes no
+
+  ;; Run once at start-up and after every reload: tells the companion that
+  ;; we are in the Latin layer (and on Linux resets the OS layout group).
+  alias-to-trigger-on-load startup
+
+  ;; Linux only: the name of kanata's virtual keyboard.
+  linux-output-device-name "Hotcray (kanata)"
+  ;; Linux only: keep running if the keyboard is unplugged; pick it up again
+  ;; when it comes back.
+  linux-continue-if-no-devs-found yes
+  ;; Linux only: how unicode characters are typed (Ctrl+Shift+U, hex, space).
+  linux-unicode-termination space
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  PHYSICAL KEYS THAT KANATA TAKES OVER
+;; ════════════════════════════════════════════════════════════════════════════
+;; Laid out like a full-size keyboard. Keys your keyboard lacks are harmless.
+;; `nubs` is the extra key next to Left Shift on European (ISO) keyboards.
+(defsrc
+  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12        prtsc slck pause
+  grv  1    2    3    4    5    6    7    8    9    0    min  eql  bspc   ins  home pgup   nlck kp/  kp*  kp-
+  tab  q    w    e    r    t    y    u    i    o    p    lbrc rbrc bksl   del  end  pgdn   kp7  kp8  kp9  kp+
+  caps a    s    d    f    g    h    j    k    l    scln apos ret                          kp4  kp5  kp6
+  lsft nubs z    x    c    v    b    n    m    comm .    /    rsft             up          kp1  kp2  kp3  kprt
+  lctl lmet lalt           spc            ralt rmet menu rctl            left down rght   kp0  kp.
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  SIGNALS: how kanata tells the companion what happened
+;; ════════════════════════════════════════════════════════════════════════════
+;; sig-lat / sig-cyr / sig-off : the base layer changed (tray icon colour).
+;; app-* : "per-application" keys. kanata only says "the ` key was pressed";
+;;         the companion looks at the active window and decides what to do
+;;         (toggle the terminal in VS Code, open a terminal in Explorer, ...).
+;;
+;; Windows: F13…F19 are keys that exist in Windows but not on your keyboard,
+;; so nothing else uses them. The companion registers them as system hotkeys
+;; (RegisterHotKey), which, unlike AutoHotkey's keyboard hook, cannot make
+;; keys "fall through" when the PC is busy.
+;; When pressed while Win is held (Win+Space), the F-key also stops the Start
+;; menu from popping up when you release Win.
+(platform (win winiov2 wintercept)
+  (defalias
+    sig-lat  (macro f13)
+    sig-cyr  (macro f14)
+    sig-off  (macro f15)
+    app-grv  (macro f16)
+    app-nlck (macro f17)
+    app-kp+  (macro f18)
+    app-kp0  (macro f19)
+  )
+)
+;; Linux: messages over kanata's TCP port (started with -p by the launcher).
+;; Layer changes are reported by kanata automatically, so sig-* only need to
+;; press something harmless that stops the Super key from opening the GNOME
+;; overview / KDE menu when released (Super+Ctrl does nothing by default).
+(platform (linux)
+  (defalias
+    sig-lat  (macro lctl)
+    sig-cyr  (macro lctl)
+    sig-off  XX
+    app-grv  (push-msg "app:grv")
+    app-nlck (push-msg "app:nlck")
+    app-kp+  (push-msg "app:kp+")
+    app-kp0  (push-msg "app:kp0")
+  )
+)
+
+;; Virtual keys: actions the Linux companion can trigger through TCP
+;; ({"ActOnFakeKey":{"name":"out-grv","action":"Tap"}}). They are the
+;; "answers" to the app-* questions above. Unused on Windows (harmless).
+(defvirtualkeys
+  out-grv       grv                           ;; just type `
+  out-c-grv     C-grv                         ;; VS Code: toggle terminal
+  out-f12       f12                           ;; browsers: developer tools
+  out-f4        f4                            ;; Dolphin: toggle terminal panel
+  out-ins       ins
+  out-kp+       kp+
+  out-c         c
+  out-f         f
+  out-ff-yt     (macro f6 200 y t ret)        ;; Firefox: "yt" keyword (old Hotcray)
+  ;; Holds Alt while the Win or AltGr key stays down, so that Win+Tab and
+  ;; AltGr+Tab behave exactly like holding Alt and pressing Tab repeatedly.
+  alt-held      lalt
+  release-lmet  (release-key lmet)
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  CYRILLIC OUTPUT: two strategies
+;; ════════════════════════════════════════════════════════════════════════════
+;; A) "unicode" (Windows, and Linux fallback): kanata types the exact
+;;    character (я, Ї, ...) no matter which keyboard layout the OS uses.
+;;    Portable: nothing to install on a strange computer. Same technique as
+;;    the old Hotcray. On Linux this relies on IBus (Ctrl+Shift+U), which
+;;    many Linux apps do not support — hence strategy B.
+;; B) "xkb" (Linux, set up by linux/hotcray.sh): the OS has two layouts,
+;;    English (US) + Ukrainian, and the option "Caps Lock = first layout,
+;;    Shift+Caps Lock = last layout". kanata switches the OS layout with
+;;    those keys and types ordinary key codes, which works in every Linux app.
+;;
+;; Whichever strategy is active, the modifiers work the same way:
+;;   Ctrl / Alt / Win + key  → the key's US-QWERTY meaning, so Ctrl+C (the key
+;;   labelled C) is always Copy, in Latin and in Cyrillic mode — exactly like
+;;   the old Hotcray.
+
+;; lt = Latin letter.  $c: letter typed.  $q: physical key used for shortcuts.
+;; A shifted letter also "presses" nop1, an invisible marker used by the
+;; accent logic in hotcray-diacritics.kbd to know that the letter was upper case.
+(deftemplate lt (c q)
+  (switch
+    (lctl rctl lalt lmet rmet) $q break
+    (lsft rsft) (multi $c nop1) break
+    () $c break))
+
+;; lc = Latin letter that ALSO has a special Left-Ctrl shortcut ($lc).
+;; Left Ctrl alone (no Shift/Alt/Win/Right Ctrl) + key → $lc.
+(deftemplate lc (c q lc)
+  (switch
+    ((and lctl (not lsft rsft rctl lalt lmet rmet))) $lc break
+    (lctl rctl lalt lmet rmet) $q break
+    (lsft rsft) (multi $c nop1) break
+    () $c break))
+
+;; ls = Latin-layer key with independent plain/shifted outputs.
+;; $p: plain, $s: with Shift, $q: physical key for shortcuts.
+(deftemplate ls (p s q)
+  (switch
+    (lctl rctl lalt lmet rmet) $q break
+    (lsft rsft) $s break
+    () $p break))
+
+;; --- Strategy A: unicode --------------------------------------------------
+;; cy: $lo lower case, $up upper case, $q physical key for shortcuts,
+;;     $ua the key producing the letter in the Ukrainian OS layout (unused here).
+(environment (HOTCRAY_LINUX_XKB "")
+  (deftemplate cy (lo up q ua)
+    (switch
+      (lctl rctl lalt lmet rmet) $q break
+      (lsft rsft) (unicode $up) break
+      () (unicode $lo) break)))
+;; cc: like cy, plus a Left-Ctrl shortcut (see lc).
+(environment (HOTCRAY_LINUX_XKB "")
+  (deftemplate cc (lo up q ua lc)
+    (switch
+      ((and lctl (not lsft rsft rctl lalt lmet rmet))) $lc break
+      (lctl rctl lalt lmet rmet) $q break
+      (lsft rsft) (unicode $up) break
+      () (unicode $lo) break)))
+;; cr: key that types a digit, or a Russian-only letter with Shift.
+;; $d digit, $ru letter, $ruk how to type it in the Ukrainian OS layout.
+(environment (HOTCRAY_LINUX_XKB "")
+  (deftemplate cr (d ru ruk)
+    (switch
+      (lctl rctl lalt lmet rmet) $d break
+      (lsft rsft) (unicode $ru) break
+      () $d break)))
+;; sx: a symbol typed with a US key code, e.g. S-2 for @. Nothing special
+;; is needed with strategy A.
+(environment (HOTCRAY_LINUX_XKB "")
+  (deftemplate sx (k) $k))
+
+;; --- Strategy B: xkb (Linux) ----------------------------------------------
+(environment (HOTCRAY_LINUX_XKB yes)
+  (deftemplate cy (lo up q ua)
+    (switch
+      (lctl rctl lalt lmet rmet) $q break
+      () $ua break)))
+(environment (HOTCRAY_LINUX_XKB yes)
+  (deftemplate cc (lo up q ua lc)
+    (switch
+      ((and lctl (not lsft rsft rctl lalt lmet rmet))) $lc break
+      (lctl rctl lalt lmet rmet) $q break
+      () $ua break)))
+;; Russian letters live on the Ukrainian layout's AltGr level (RA-...);
+;; unshift so that holding Shift for the key doesn't turn ы into Ы.
+(environment (HOTCRAY_LINUX_XKB yes)
+  (deftemplate cr (d ru ruk)
+    (switch
+      (lctl rctl lalt lmet rmet) $d break
+      (lsft rsft) $ruk break
+      () $d break)))
+;; In the Ukrainian OS layout, many US symbol keys give other characters
+;; (the ; key gives ж). When a symbol is needed while Cyrillic is active,
+;; switch the OS to English for that one key: Caps (→ English), symbol,
+;; Shift+Caps (→ Ukrainian). The two branches only differ in which Shift is
+;; used for the switch back, so that a Shift you are holding stays held.
+(environment (HOTCRAY_LINUX_XKB yes)
+  (deftemplate sx (k)
+    (switch
+      ((and (base-layer cyr) (input real lsft))) (macro (unmod caps) $k (unmod rsft caps)) break
+      ((base-layer cyr)) (macro (unmod caps) $k (unmod lsft caps)) break
+      () $k break)))
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER SWITCHING
+;; ════════════════════════════════════════════════════════════════════════════
+(environment (HOTCRAY_LINUX_XKB "")
+  (defalias
+    to-lat  (multi (layer-switch lat) @sig-lat)
+    to-cyr  (multi (layer-switch cyr) @sig-cyr)
+    startup @sig-lat
+    os-lat  XX
+  )
+)
+(environment (HOTCRAY_LINUX_XKB yes)
+  (defalias
+    ;; Caps = OS layout 1 (English), Shift+Caps = OS layout 2 (Ukrainian).
+    ;; unmod releases Shift/Ctrl/Alt first but keeps Super held, so Super+Caps
+    ;; also stops the Super key from opening the overview when released.
+    to-lat  (multi (layer-switch lat) (macro (unmod (lsft rsft lctl rctl lalt ralt) caps)))
+    to-cyr  (multi (layer-switch cyr) (macro (unmod (lsft rsft lctl rctl lalt ralt) lsft caps)))
+    startup (macro (unmod caps))
+    os-lat  (macro (unmod caps))
+  )
+)
+
+(defalias
+  ;; Win+Space: Latin ⇄ Cyrillic.
+  lang (switch
+    ((base-layer cyr)) @to-lat break
+    () @to-cyr break)
+
+  ;; Pause / resume Hotcray (ScrollLock, or Right Shift + Esc).
+  ;; Also taps ScrollLock so the keyboard's Scroll Lock light shows the state:
+  ;; LIGHT ON = Hotcray PAUSED. (The companion turns the light off at start.)
+  ;; Linux+xkb: `os-lat` puts the OS layout back to English for the other person.
+  pause  (multi (layer-switch off) @sig-off slck @os-lat)
+  resume (multi @to-lat slck)
+
+  ;; Hold Right Shift: normal Shift, plus Esc becomes pause/resume.
+  rs     (multi rsft (layer-while-held rsh))
+  rs-off (multi rsft (layer-while-held rsh-off))
+
+  ;; Hold Right Alt (AltGr): symbols layer. Right Alt+Tab = Alt+Tab.
+  sym    (multi (layer-while-held sym) (on-release release-vkey alt-held))
+
+  ;; Tap Left Alt = Esc. Hold Left Alt = navigation layer.
+  ;; The layer turns on the moment another key is pressed, so there is no
+  ;; delay. Releasing Left Alt without pressing anything else (within 1 s)
+  ;; types Esc, like the old Hotcray. 0 = no "tap then hold repeats Esc".
+  nav    (tap-hold-press 0 1000 esc (layer-while-held nav))
+
+  ;; Hold Win: real Win key (Win+E, Win+D, Win+L… work normally), plus the
+  ;; `win` layer for the few Win shortcuts Hotcray changes.
+  win    (multi lmet (layer-while-held win) (on-release release-vkey alt-held))
+
+  ;; Win+Tab / AltGr+Tab → Alt+Tab window switcher that stays open while you
+  ;; keep holding Win/AltGr and tap Tab (Shift+Tab goes backwards).
+  ;; Order matters: press Alt first (this also stops the Start menu), then
+  ;; release Win, then Tab.
+  alttab (macro (on-press press-vkey alt-held) 1 (on-press tap-vkey release-lmet) 1 tab)
+
+  ;; Backtick (per-application; see the companion) / Shift+` = №.
+  grv    (switch
+           (lctl rctl lalt lmet rmet) grv break
+           (lsft rsft) (unicode №) break
+           () @app-grv break)
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER: lat — Latin (Colemak-style, as in the old Hotcray)
+;; ════════════════════════════════════════════════════════════════════════════
+;;  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+;;  │ `*│ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │ 8 │ 9 │ 0 │ ✔ │ ✖ │   * ` per app, Shift+` = №
+;;  ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
+;;  │   │ q │ w │ f │ p │ g │ j │ l │ u │ y │ / │ « │ » │ Alt+D (address bar)
+;;  │   │   │   │   │   │   │   │   │   │   │ \ │ • │ ◦ │ ← with Shift
+;;  ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┘
+;;  │Bsp│ a │ r │ s │ t │ d │ h │ n │ e │ i │ o │ # │      CapsLock = Backspace
+;;  │   │   │   │   │   │   │   │   │   │   │   │ * │      ← with Shift
+;;  ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
+;;  │   │ z │ x │ c │ v │ b │ k │ m │ , │ . │ _ │
+;;  │   │   │   │   │   │   │   │   │ ? │ ! │ | │      ← with Shift
+;;  └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+;;  With Ctrl/Alt/Win held every key is plain US-QWERTY (Ctrl+E is Ctrl+E).
+;;  Special Left-Ctrl shortcuts (old Hotcray):  LCtrl+D → Ctrl+H (replace),
+;;  LCtrl+Q/W/E → Alt+C/W/R (VS Code: match case / whole word / regex).
+(deflayermap (lat)
+  grv  @grv
+  min  (t! ls (unicode ✔) min min)
+  eql  (t! ls (unicode ✖) eql eql)
+
+  q    (t! lc q q (unmod (lctl) lalt c))
+  w    (t! lc w w (unmod (lctl) lalt w))
+  e    (t! lc f e (unmod (lctl) lalt r))
+  r    (t! lt p r)
+  t    (t! lt g t)
+  y    (t! lt j y)
+  u    (t! lt l u)
+  i    (t! lt u i)
+  o    (t! lt y o)
+  p    (t! ls / (unshift bksl) p)
+  lbrc (t! ls (unicode «) (unicode •) lbrc)
+  rbrc (t! ls (unicode ») (unicode ◦) rbrc)
+  bksl (t! ls A-d bksl bksl)
+
+  caps bspc
+  a    (t! lt a a)
+  s    (t! lt r s)
+  d    (t! lc s d h)
+  f    (t! lt t f)
+  g    (t! lt d g)
+  h    (t! lt h h)
+  j    (t! lt n j)
+  k    (t! lt e k)
+  l    (t! lt i l)
+  scln (t! lt o scln)
+  apos (t! ls S-3 S-8 apos)
+
+  z    (t! lt z z)
+  x    (t! lt x x)
+  c    (t! lt c c)
+  v    (t! lt v v)
+  b    (t! lt b b)
+  n    (t! lt k n)
+  m    (t! lt m m)
+  comm (t! ls comm S-/ comm)
+  .    (t! ls . S-1 .)
+  /    (t! ls S-min S-bksl /)
+
+  ;; ---- keys shared with every "on" layer (repeated in cyr) ----
+  slck @pause
+  rsft @rs
+  ralt @sym
+  lalt @nav
+  lmet @win
+  ;; Numpad: works the same whatever the NumLock state (NumLock itself is
+  ;; handed to the companion). No more digits on the numpad, as requested.
+  nlck @app-nlck
+  kp7  volu    kp8  up      kp9  pgup
+  kp4  left    kp5  spc     kp6  rght
+  kp1  vold    kp2  down    kp3  pgdn
+  kp0  @app-kp0            kp.  del
+  kp+  @app-kp+
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER: cyr — Cyrillic, Ukrainian first
+;; ════════════════════════════════════════════════════════════════════════════
+;; Changes compared to the old Hotcray:
+;;   * No more "press twice" toggles. Every Ukrainian letter has its own key:
+;;       R = є (was э/є)   V = і (was ы/і)   S = и   ' = ї
+;;       \ = й (was и/й on S)   - = ґ (was ї/ґ on ')
+;;   * Russian-only letters moved to Shift + number row:
+;;       Shift+1 ы  Shift+2 Ы  Shift+3 э  Shift+4 Э
+;;       Shift+5 ъ  Shift+6 Ъ  Shift+7 ё  Shift+8 Ё   (Shift+9/0 stay ( ) )
+;;     The replaced !@#$%^&* are on AltGr (see sym) or Shift+Z/X.
+;;   * Shift+W is now Ь (ъ moved to Shift+5).
+;;   * / « » that shared keys with ч ш щ are on AltGr+Shift+6 / [ / ].
+;;
+;;  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+;;  │ `*│1 ы│2 Ы│3 э│4 Э│5 ъ│6 Ъ│7 ё│8 Ё│ 9 │ 0 │ ґ │ ✖ │   (upper row = Shift)
+;;  ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
+;;  │   │ ц │ ь │ я │ є │ ф │ з │ в │ к │ д │ ч │ ш │ щ │ й
+;;  ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┘
+;;  │Bsp│ у │ и │ е │ о │ а │ л │ н │ т │ с │ р │ ї │
+;;  ├───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┼───┤
+;;  │   │ . │ , │ х │ і │ ю │ б │ м │ п │ г │ ж │      Shift+Z = !  Shift+X = ?
+;;  └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+;;
+;; Arguments of cy: lower, upper, physical key for shortcuts, key in the
+;; Ukrainian OS layout (Linux xkb strategy only).
+(deflayermap (cyr)
+  grv  @grv
+  1    (t! cr 1 ы (unshift ralt s))
+  2    (t! cr 2 Ы RA-S-s)
+  3    (t! cr 3 э (unshift ralt apos))
+  4    (t! cr 4 Э RA-S-apos)
+  5    (t! cr 5 ъ (unshift ralt rbrc))
+  6    (t! cr 6 Ъ RA-S-rbrc)
+  7    (t! cr 7 ё (unshift ralt t))
+  8    (t! cr 8 Ё RA-S-t)
+  min  (t! cy ґ Ґ min bksl)
+  eql  (t! ls (unicode ✖) eql eql)
+
+  q    (t! cc ц Ц q w (unmod (lctl) lalt c))
+  w    (t! cc ь Ь w m (unmod (lctl) lalt w))
+  e    (t! cc я Я e z (unmod (lctl) lalt r))
+  r    (t! cy є Є r apos)
+  t    (t! cy ф Ф t a)
+  y    (t! cy з З y p)
+  u    (t! cy в В u d)
+  i    (t! cy к К i r)
+  o    (t! cy д Д o l)
+  p    (t! cy ч Ч p x)
+  lbrc (t! cy ш Ш lbrc i)
+  rbrc (t! cy щ Щ rbrc o)
+  bksl (t! cy й Й bksl q)
+
+  caps bspc
+  a    (t! cy у У a e)
+  s    (t! cy и И s b)
+  d    (t! cc е Е d t h)
+  f    (t! cy о О f j)
+  g    (t! cy а А g f)
+  h    (t! cy л Л h k)
+  j    (t! cy н Н j y)
+  k    (t! cy т Т k n)
+  l    (t! cy с С l c)
+  scln (t! cy р Р scln h)
+  apos (t! cy ї Ї apos rbrc)
+
+  z    @cyr-z
+  x    @cyr-x
+  c    (t! cy х Х c lbrc)
+  v    (t! cy і І v s)
+  b    (t! cy ю Ю b .)
+  n    (t! cy б Б n comm)
+  m    (t! cy м М m v)
+  comm (t! cy п П comm g)
+  .    (t! cy г Г . u)
+  /    (t! cy ж Ж / scln)
+
+  slck @pause
+  rsft @rs
+  ralt @sym
+  lalt @nav
+  lmet @win
+  nlck @app-nlck
+  kp7  volu    kp8  up      kp9  pgup
+  kp4  left    kp5  spc     kp6  rght
+  kp1  vold    kp2  down    kp3  pgdn
+  kp0  @app-kp0            kp.  del
+  kp+  @app-kp+
+)
+;; Z and X: . and , (Shift: ! and ?). In the Ukrainian OS layout (xkb) the
+;; period is on the / key and ,/? are Shift+/ and Shift+7.
+(environment (HOTCRAY_LINUX_XKB "")
+  (defalias
+    cyr-z (t! ls . S-1 z)
+    cyr-x (t! ls comm S-/ x)))
+(environment (HOTCRAY_LINUX_XKB yes)
+  (defalias
+    cyr-z (t! ls / S-1 z)
+    cyr-x (t! ls S-/ S-7 x)))
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER: sym — while Right Alt (AltGr) is held
+;; ════════════════════════════════════════════════════════════════════════════
+;; Same in Latin and Cyrillic mode. Upper symbol = with Shift.
+;;  ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+;;  │  ∞  │¹ಠ_ಠ │² ツ │³ ☯  │√ ☞  │· ᕦ  │×  / │÷  \ │+  # │−  * │±    │≈    │≠    │
+;;  ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+;;  │     │9 ˚  │8 ˛  │7 ˇ  │6 ˆ  │5 ˝  │þ Þ  │ð Ð  │( [  │) ]  │% °  │≥ «  │≤ »  │
+;;  ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┘
+;;  │ Bsp │0 `  │1 ´  │2 ˜  │3 ¨  │4 ß  │‑ ¸  │+ <  │= >  │" {  │' }  │` ¯  │
+;;  ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+;;  │     │æ Æ  │œ Œ  │© ₴  │™ €  │– £  │— ₽  │- ^  │; $  │: @  │& ~  │
+;;  └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+;;  Shift+Q W E R T A S D F H ' = accents typed AFTER a letter: e then
+;;  AltGr+Shift+S → é (one real character, see hotcray-diacritics.kbd).
+;;  ‑ is a non-breaking hyphen. Other keys: Right Alt = Alt (Alt+F4,
+;;  Alt+Enter, Alt+arrows...), Right Alt + Tab = Alt+Tab, Space = Space.
+;;
+;; `sy` = plain/shifted symbol pair. Shifted outputs that are plain keys are
+;; wrapped in (unshift ...) so that the Shift you hold doesn't change them.
+(deftemplate sy (p s) (fork $p $s (lsft rsft)))
+
+(deflayermap (sym)
+  grv  (unicode ∞)
+  1    (t! sy (unicode ¹) (macro (unicode ಠ) (unicode U+005F) (unicode ಠ)))
+  2    (t! sy (unicode ²) (macro (unicode ¯) (unicode U+005C) (unicode U+005F) (unicode "(") (unicode ツ) (unicode ")") (unicode U+005F) (unicode U+002F) (unicode ¯)))
+  3    (t! sy (unicode ³) (macro (unicode ¯) (unicode U+005C) (unicode "(") (unicode ☯) (unicode ෴) (unicode ☯) (unicode ")") (unicode U+002F) (unicode ¯)))
+  4    (t! sy (unicode √) (macro (unicode "(") (unicode ☞) (unicode U+0020) (unicode ಠ) (unicode U+005F) (unicode ಠ) (unicode ")") (unicode ☞)))
+  5    (t! sy (unicode ·) (macro (unicode ᕦ) (unicode "(") (unicode ಠ) (unicode U+005F) (unicode ಠ) (unicode ")") (unicode ᕤ)))
+  6    (t! sy (unicode ×) (t! sx (unshift /)))
+  7    (t! sy (unicode ÷) (t! sx (unshift bksl)))
+  8    (t! sy (t! sx S-eql) (t! sx S-3))
+  9    (t! sy (unicode −) S-8)
+  0    (t! sy (unicode ±) XX)
+  min  (t! sy (unicode ≈) XX)
+  eql  (t! sy (unicode ≠) XX)
+
+  q    (t! sy (unshift Digit9) @dia-ring)
+  w    (t! sy (unshift Digit8) @dia-ogonek)
+  e    (t! sy (unshift Digit7) @dia-caron)
+  r    (t! sy (unshift Digit6) @dia-circumflex)
+  t    (t! sy (unshift Digit5) @dia-dblacute)
+  y    (t! sy (unicode þ) (unicode Þ))
+  u    (t! sy (unicode ð) (unicode Ð))
+  i    (t! sy S-9 (t! sx (unshift lbrc)))
+  o    (t! sy S-0 (t! sx (unshift rbrc)))
+  p    (t! sy S-5 (unicode °))
+  lbrc (t! sy (unicode ≥) (unicode «))
+  rbrc (t! sy (unicode ≤) (unicode »))
+
+  caps bspc
+  a    (t! sy (unshift Digit0) @dia-grave)
+  s    (t! sy (unshift Digit1) @dia-acute)
+  d    (t! sy (unshift Digit2) @dia-tilde)
+  f    (t! sy (unshift Digit3) @dia-diaeresis)
+  g    (t! sy (unshift Digit4) (unicode ß))
+  h    (t! sy (unicode ‑) @dia-cedilla)
+  j    (t! sy (t! sx S-eql) (t! sx S-comm))
+  k    (t! sy (t! sx eql) (t! sx S-.))
+  l    (t! sy (t! sx S-apos) (t! sx S-lbrc))
+  scln (t! sy (t! sx apos) (t! sx S-rbrc))
+  apos (t! sy (t! sx grv) @dia-macron)
+
+  z    (t! sy (unicode æ) (unicode Æ))
+  x    (t! sy (unicode œ) (unicode Œ))
+  c    (t! sy (unicode ©) (unicode ₴))
+  v    (t! sy (unicode ™) (unicode €))
+  b    (t! sy (unicode –) (unicode £))
+  n    (t! sy (unicode —) (unicode ₽))
+  m    (t! sy min (t! sx S-6))
+  comm (t! sy (t! sx scln) (t! sx S-4))
+  .    (t! sy (t! sx S-scln) (t! sx S-2))
+  /    (t! sy (t! sx S-7) (t! sx S-grv))
+
+  ;; Right Alt behaves as Alt for everything else.
+  spc  spc
+  tab  @alttab
+  esc  A-esc  ret  A-ret  bspc A-bspc  del  A-del  ins  A-ins
+  f1 A-f1  f2 A-f2  f3 A-f3  f4 A-f4  f5 A-f5  f6 A-f6
+  f7 A-f7  f8 A-f8  f9 A-f9  f10 A-f10  f11 A-f11  f12 A-f12
+  left A-left  rght A-rght  up A-up  down A-down
+  home A-home  end A-end  pgup A-pgup  pgdn A-pgdn
+  lalt (layer-while-held nalt)
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER: nav — while Left Alt is held
+;; ════════════════════════════════════════════════════════════════════════════
+;;  ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+;;  │     │UndoT│     │PgUp │     │     │GoFil│GoLin│  ↑  │Menu │AddrB│
+;;  ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+;;  │     │     │Home │PgDn │ End │Fold │Unfld│  ←  │  ↓  │  →  │Shift│
+;;  ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┘
+;;  │     │  *  │     │     │     │Cmnt │     │ Del │C-A-↓│C-A-↑│
+;;  └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+;;   Tap Left Alt alone = Esc.
+;;   Every other key = Ctrl + that key (US-QWERTY): Left Alt + C = Copy,
+;;   + V = Paste, + Z = Undo, + Shift+Z = Redo (Ctrl+Y), + Tab = next tab...
+;;   Combine freely: + Shift = select, + Left Ctrl = by word,
+;;   + ; (held) = select (acts as Shift), + Right Alt = Alt+arrows / tabs.
+;;
+;;   WHY THE ARROWS NOW WORK ON dict.cc: the old Hotcray made Left Alt a held
+;;   Ctrl key and, for each arrow, released Ctrl, pressed the arrow and pressed
+;;   Ctrl again. Web pages see those extra Ctrl key events; dict.cc's
+;;   suggestion list (like many others) treats any non-arrow key as "the user
+;;   is typing" and rebuilds the list, which throws away the highlighted row.
+;;   Here Left Alt is not Ctrl at all: an arrow is just an arrow.
+(deflayermap (nav)
+  ;; navigation
+  i    up        j    left      k    down      l    rght
+  s    home      f    end       e    pgup      d    pgdn
+  m    del
+  scln lsft                                   ;; hold ; = Shift (select)
+  comm C-A-down  .    C-A-up                   ;; VS Code: add cursor below/above
+  ;; editing / app shortcuts (old Hotcray)
+  q    C-S-t                                   ;; reopen closed tab
+  y    C-p                                     ;; VS Code: go to file
+  u    C-g                                     ;; VS Code: go to line
+  o    S-f10                                   ;; context menu
+  p    A-d                                     ;; address bar
+  g    (macro C-k C-lbrc)                      ;; VS Code: fold recursively
+  h    (macro C-k C-rbrc)                      ;; VS Code: unfold recursively
+  b    C-/                                     ;; toggle comment
+  z    (fork C-z (unshift lctl y) (lsft rsft)) ;; undo / Shift: redo (Ctrl+Y)
+  ;; everything else: Ctrl + key
+  a C-a  c C-c  n C-n  r C-r  t C-t  v C-v  w C-w  x C-x
+  grv C-grv  1 C-1  2 C-2  3 C-3  4 C-4  5 C-5  6 C-6  7 C-7  8 C-8  9 C-9  0 C-0
+  min C-min  eql C-eql  lbrc C-lbrc  rbrc C-rbrc  bksl C-bksl  apos C-apos  / C-/
+  tab C-tab  caps C-bspc  bspc C-bspc  del C-del  ret C-ret  spc C-spc  ins C-ins
+  f1 C-f1  f2 C-f2  f3 C-f3  f4 C-f4  f5 C-f5  f6 C-f6
+  f7 C-f7  f8 C-f8  f9 C-f9  f10 C-f10  f11 C-f11  f12 C-f12
+  left C-left  rght C-rght  up C-up  down C-down
+  home C-home  end C-end  pgup C-pgup  pgdn C-pgdn
+  ralt (layer-while-held nalt)
+)
+
+;; nalt — Left Alt + Right Alt held. Alt versions of the arrows, tab keys.
+(deflayermap (nalt)
+  j    A-left    l    A-rght    i    A-up      k    A-down  ;; back/forward, move line
+  s    C-pgup    f    C-pgdn                                ;; previous/next tab
+  e    C-S-pgup  d    C-S-pgdn                              ;; move tab left/right
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER: win — while the Win (Super) key is held
+;; ════════════════════════════════════════════════════════════════════════════
+;; All keys act as plain US-QWERTY keys (Win+E = Explorer, Win+D = desktop,
+;; ...) except:
+;;   Win+Space = Latin ⇄ Cyrillic (instead of the OS layout switch)
+;;   Win+Tab   = Alt+Tab switcher (hold Win, tap Tab)
+;;   Win+`     = Win+Tab (Task View)
+(deflayermap (win)
+  spc  @lang
+  tab  @alttab
+  grv  tab
+  caps bspc
+  _    use-defsrc
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  Right Shift held: Esc = pause/resume
+;; ════════════════════════════════════════════════════════════════════════════
+;; The fallback for keyboards without a ScrollLock key.
+(deflayermap (rsh)
+  esc  @pause
+)
+(deflayermap (rsh-off)
+  esc  @resume
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  LAYER: off — Hotcray paused. The keyboard behaves 100% normally
+;; ════════════════════════════════════════════════════════════════════════════
+;; Only ScrollLock and Right Shift+Esc do something: resume.
+;; (The tray menu can also stop kanata completely.)
+(deflayermap (off)
+  slck @resume
+  rsft @rs-off
+  _    use-defsrc
+  __   use-defsrc
+)
+
+
+;; ════════════════════════════════════════════════════════════════════════════
+;;  Accents (generated; see tools/gen_diacritics.py)
+;; ════════════════════════════════════════════════════════════════════════════
+(include hotcray-diacritics.kbd)
