@@ -1,0 +1,96 @@
+# Checks every push, and builds the ready-to-use portable zip for releases.
+#
+#   * linux:   runs the kanata simulator tests (tests/sim_tests.py) and checks
+#              the config with the real Linux kanata, in both Cyrillic modes.
+#   * windows: checks the config with the real Windows kanata and lets
+#              AutoHotkey v2 validate Hotcray.ahk.
+#   * release: when you push a tag like v2.0.0, builds Hotcray-portable.zip
+#              (everything + kanata + AutoHotkey, for Windows and Linux) and
+#              attaches it to a GitHub Release. That zip is what you download
+#              onto a USB stick.
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KANATA_VERSION: v1.11.0
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download binaries
+        run: ./get-binaries.sh
+      - name: Check config (unicode mode and xkb mode)
+        run: |
+          bin/kanata --check -c hotcray.kbd
+          HOTCRAY_LINUX_XKB=yes bin/kanata --check -c hotcray.kbd
+      - name: Diacritics file is up to date
+        run: |
+          python3 tools/gen_diacritics.py
+          git diff --exit-code hotcray-diacritics.kbd
+      - name: Lint scripts
+        run: |
+          bash -n linux/hotcray.sh get-binaries.sh
+          python3 -m py_compile linux/hotcray-companion.py tests/sim_tests.py tools/gen_diacritics.py
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            kanata-src/target
+          key: kanata-sim-${{ env.KANATA_VERSION }}
+      - name: Build the kanata simulator
+        run: |
+          [ -d kanata-src ] || git clone --depth 1 --branch "$KANATA_VERSION" https://github.com/jtroo/kanata.git kanata-src
+          cd kanata-src && cargo build --release -p kanata-sim
+      - name: Simulator tests
+        run: python3 tests/sim_tests.py kanata-src/target/release/kanata_simulated_input
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download binaries
+        shell: pwsh
+        run: ./get-binaries.ps1
+      - name: Check config with the Windows kanata
+        shell: cmd
+        run: bin\kanata.exe --check -c hotcray.kbd
+      - name: Validate Hotcray.ahk with AutoHotkey v2
+        shell: cmd
+        run: |
+          Hotcray.exe /ErrorStdOut /validate Hotcray.ahk > validate.txt 2>&1
+          set rc=%ERRORLEVEL%
+          type validate.txt
+          exit /b %rc%
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build portable zip
+        run: |
+          ./get-binaries.sh
+          mkdir -p dist/Hotcray
+          git ls-files | grep -v -e '^\.github/' -e '^tests/' | while read -r f; do
+            mkdir -p "dist/Hotcray/$(dirname "$f")"; cp -p "$f" "dist/Hotcray/$f"
+          done
+          cp -r bin Hotcray.exe dist/Hotcray/
+          (cd dist && zip -qr Hotcray-portable.zip Hotcray)
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/Hotcray-portable.zip --title "Hotcray $GITHUB_REF_NAME" --notes "Unzip anywhere (e.g. a USB stick). Windows: run Hotcray.exe. Linux: run linux/hotcray.sh. See README."

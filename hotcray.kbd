@@ -28,7 +28,7 @@
 ;; 1. Edit, save.
 ;; 2. Check it:   Windows:  bin\kanata.exe --check -c hotcray.kbd
 ;;                Linux:    bin/kanata --check -c hotcray.kbd
-;;    (the tray menu has "Check config" / "Reload config" too).
+;;    (tray menu → "Reload config" runs this check for you first).
 ;; 3. Reload: tray menu → Reload, or restart Hotcray. If the new file has an
 ;;    error, a live reload keeps using the old one, so you never end up
 ;;    without a keyboard.
@@ -172,6 +172,8 @@
   out-c         c
   out-f         f
   out-ff-yt     (macro f6 200 y t ret)        ;; Firefox: "yt" keyword (old Hotcray)
+  out-caps      caps                          ;; used once at start to turn CapsLock off
+  out-nlck      nlck                          ;; used once at start to turn NumLock off
   ;; Holds Alt while the Win or AltGr key stays down, so that Win+Tab and
   ;; AltGr+Tab behave exactly like holding Alt and pressing Tab repeatedly.
   alt-held      lalt
@@ -224,6 +226,8 @@
     () $p break))
 
 ;; --- Strategy A: unicode --------------------------------------------------
+;; (kanata's log says "$ua / $ruk did not appear in its template" for these:
+;; expected — strategy A doesn't need those arguments.)
 ;; cy: $lo lower case, $up upper case, $q physical key for shortcuts,
 ;;     $ua the key producing the letter in the Ukrainian OS layout (unused here).
 (environment (HOTCRAY_LINUX_XKB "")

@@ -1,2 +1,11 @@
 Thumbs.db
+# Downloaded by get-binaries.ps1 / get-binaries.sh (not stored in git)
+/bin/
+/Hotcray.exe
 *.exe
+# Per-computer state
+/Hotcray.ini
+/logs/
+__pycache__/
+/kanata-src/
+/dist/
